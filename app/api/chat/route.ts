@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { parseIntent } from "@/lib/ai/intent-parser";
 import { findPackageOptions } from "@/lib/package/search";
 import { formatDealerVisibleReasons } from "@/lib/recommendation/formatter";
+import { canViewRawReason, type AppRole } from "@/lib/auth/rbac";
 import { logAudit } from "@/lib/audit/log";
 
 export async function POST(req: NextRequest) {
@@ -28,6 +29,8 @@ export async function POST(req: NextRequest) {
   const status = options[0]?.status ?? "MANUAL_REVIEW";
   const reasonCodes = options[0]?.reasonCodes ?? ["RC04"];
 
+  const role = (body.context?.userRole || "DEALER_SALESMAN") as AppRole;
+
   const response = {
     intent: parsed.intent,
     entities: {
@@ -45,7 +48,7 @@ export async function POST(req: NextRequest) {
       paymentType: o.paymentType,
       estimatedInstallment: o.estimatedInstallment,
       estimatedTdp: o.estimatedTdp,
-      reasonCodes: o.reasonCodes,
+      ...(canViewRawReason(role) ? { reasonCodes: o.reasonCodes } : {}),
     })),
     dealerVisibleReasons: formatDealerVisibleReasons(reasonCodes),
     disclaimer: "Rekomendasi awal, bukan keputusan approval final.",
