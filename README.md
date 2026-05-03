@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TAF Smart Package Assistant
 
-## Getting Started
+TAF Smart Package Assistant is a sales assistant for Dealer and Sales Officer users to find feasible financing schemes based on package rules and policy guardrails.
 
-First, run the development server:
+## Non-Approval Disclaimer
+
+This application is **not** an automated credit approval system. All outputs are recommendations only and final approval remains under TAF credit processes.
+
+## Local Setup
 
 ```bash
+npm install
+cp .env.example .env
+npx prisma migrate dev
+npx prisma db seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `DATABASE_URL` (required)
+- `OPENAI_API_KEY` (optional for fallback mode, server-side only)
+- `OPENAI_MODEL` (optional)
+- `APP_BASE_URL` (prod required)
+- `AUTH_SECRET` (prod required)
+- `DEMO_MODE` (optional)
+- `NEXT_PUBLIC_APP_NAME` (optional)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Security/Hardening (Sprint 5)
 
-## Learn More
+- Deterministic fallback works without `OPENAI_API_KEY` (`parseIntent` falls back to regex parser).
+- `OPENAI_API_KEY` is never exposed through `NEXT_PUBLIC_*` variables.
+- Dealer role is blocked from admin endpoints via middleware RBAC and does not receive raw reason details from `/api/chat`.
+- Every recommendation includes internal reason codes and writes audit logs (`CHAT_RECOMMENDATION`).
+- `.env` file must never be committed; only `.env.example` is tracked.
 
-To learn more about Next.js, take a look at the following resources:
+## Testing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Includes unit tests and integration test placeholders for:
+- calculator
+- package search
+- rules engine
+- intent parser
+- chat API integration
+- admin workflow integration
 
-## Deploy on Vercel
+## Vercel Deployment Check
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `next.config.ts` is present and Next.js app is Vercel-ready.
+- Ensure Vercel Project Environment Variables are set from `.env.example`.
+- Do not set `OPENAI_API_KEY` as public env var.
