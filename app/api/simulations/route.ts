@@ -1,13 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { calculateSimulation } from "@/lib/simulation/calculator";
 
-export async function GET() {
-  return NextResponse.json({ message: "Sprint 0 scaffold endpoint" }, { status: 501 });
-}
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const result = calculateSimulation({
+    otr: Number(body.otr),
+    dpPct: Number(body.dpPct),
+    annualRatePct: Number(body.annualRatePct),
+    tenorMonths: Number(body.tenorMonths),
+    financedInsurance: Number(body.financedInsurance ?? 0),
+    cashInsurance: Number(body.cashInsurance ?? 0),
+    adminFee: Number(body.adminFee ?? 0),
+    paymentType: body.paymentType,
+  });
 
-export async function POST() {
-  return NextResponse.json({ message: "Sprint 0 scaffold endpoint" }, { status: 501 });
-}
-
-export async function PATCH() {
-  return NextResponse.json({ message: "Sprint 0 scaffold endpoint" }, { status: 501 });
+  return NextResponse.json(result);
 }
