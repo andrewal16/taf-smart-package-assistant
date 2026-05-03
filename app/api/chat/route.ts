@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       estimatedTdp: o.estimatedTdp,
       ...(canViewRawReason(role) ? { reasonCodes: o.reasonCodes } : {}),
     })),
+    internalReasonCodes: reasonCodes,
     dealerVisibleReasons: formatDealerVisibleReasons(reasonCodes),
     disclaimer: "Rekomendasi awal, bukan keputusan approval final.",
   };
