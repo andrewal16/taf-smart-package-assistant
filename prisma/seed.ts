@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { PrismaClient, RecommendationStatus, UserRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -21,11 +22,15 @@ async function main() {
     create: { id: "dealer-kelapa-gading-2", name: "Dealer Demo Kelapa Gading 2", branchId: branch.id, isActive: true },
   });
 
-  const users: Array<{ email: string; name: string; role: UserRole }> = [
-    { email: "dealer@example.com", name: "Dealer Demo", role: UserRole.DEALER_SALESMAN },
+  const secret = process.env.AUTH_SECRET || "dev-auth-secret-change-me";
+  const hash = (pw: string) => crypto.createHash("sha256").update(`${secret}:${pw}`).digest("hex");
+
+  const users: Array<{ email: string; name: string; role: UserRole; passwordHash?: string }> = [
+    { email: "dealer@example.com", name: "Dealer Demo", role: UserRole.DEALER_SALESMAN, passwordHash: hash("dealer123") },
     { email: "so@example.com", name: "Sales Officer Demo", role: UserRole.SALES_OFFICER },
     { email: "head@example.com", name: "Sales Head Demo", role: UserRole.SALES_HEAD },
     { email: "product@example.com", name: "Product Admin Demo", role: UserRole.PRODUCT_ADMIN },
+    { email: "admin@example.com", name: "Admin Demo", role: UserRole.PRODUCT_ADMIN, passwordHash: hash("admin123") },
     { email: "credit@example.com", name: "Credit Admin Demo", role: UserRole.CREDIT_ADMIN },
     { email: "risk@example.com", name: "Risk Admin Demo", role: UserRole.RISK_ADMIN },
     { email: "compliance@example.com", name: "Compliance Admin Demo", role: UserRole.COMPLIANCE_ADMIN },
@@ -34,8 +39,8 @@ async function main() {
   for (const user of users) {
     await prisma.user.upsert({
       where: { email: user.email },
-      update: { ...user, dealerId: dealer1.id, branchId: branch.id },
-      create: { ...user, dealerId: dealer1.id, branchId: branch.id },
+      update: { ...user, dealerId: dealer1.id, branchId: branch.id, passwordHash: user.passwordHash },
+      create: { ...user, dealerId: dealer1.id, branchId: branch.id, passwordHash: user.passwordHash },
     });
   }
 

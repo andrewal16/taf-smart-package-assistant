@@ -37,6 +37,9 @@ export default function ChatPage() {
     setData(await response.json());
   };
 
+
+  const logout = async () => { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/login"; };
+
   const saveLead = async () => {
     await fetch("/api/leads", {
       method: "POST",
@@ -57,7 +60,7 @@ export default function ChatPage() {
 
   return (
     <main className="mx-auto max-w-4xl space-y-4 p-6">
-      <h1 className="text-xl font-semibold">Chat Recommendation</h1>
+      <div className="flex items-center justify-between"><h1 className="text-xl font-semibold">Chat Recommendation</h1><button className="text-sm underline" onClick={logout}>Logout</button></div>
       <textarea className="w-full rounded border p-2" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Masukkan kebutuhan customer" />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <input className="rounded border p-2" placeholder="Model" value={model} onChange={(e) => setModel(e.target.value)} />
