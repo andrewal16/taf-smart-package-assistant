@@ -48,8 +48,8 @@ export function verifySessionToken(token?: string | null): SessionUser | null {
   }
 }
 
-export async function getSessionUserFromServerCookies(): Promise<SessionUser | null> {
-  const cookieStore = await cookies();
+export function getSessionUserFromServerCookies(): SessionUser | null {
+  const cookieStore = cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   return verifySessionToken(token);
 }

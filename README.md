@@ -41,3 +41,11 @@ npm run dev
 
 ## Vercel notes
 Set all secrets as server environment variables only.
+
+
+## Running Without PEFINDO API
+- Set `BUREAU_MODE=mock` and `OCR_MODE=mock`.
+- Leave `PEFINDO_API_BASE_URL`, `PEFINDO_CLIENT_ID`, `PEFINDO_CLIENT_SECRET`, `PEFINDO_API_KEY` as empty strings.
+- Use Mock Bureau Scenario dropdown in `/dealer` for demo.
+- In this mode no real bureau inquiry is performed.
+- This mode is for prototype showcase only.
