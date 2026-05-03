@@ -73,7 +73,7 @@ export default function ChatPage() {
         <section className="space-y-3">
           <p className="font-medium">{data.summary}</p>
           {data.options.map((opt) => (
-            <RecommendationCard key={opt.packageId} packageName={opt.packageName} productType="New Car" model={model || undefined} dpAmount={opt.dpAmount} tenorMonths={opt.tenorMonths} paymentType={opt.paymentType} estimatedInstallment={opt.estimatedInstallment} estimatedTdp={opt.estimatedTdp} status={data.status} nextAction="Follow up customer" />
+            <RecommendationCard key={`${opt.packageId}-${opt.tenorMonths}-${opt.dpAmount}-${opt.paymentType}`} packageName={opt.packageName} productType="New Car" model={model || undefined} dpAmount={opt.dpAmount} tenorMonths={opt.tenorMonths} paymentType={opt.paymentType} estimatedInstallment={opt.estimatedInstallment} estimatedTdp={opt.estimatedTdp} status={data.status} nextAction="Follow up customer" />
           ))}
           <p className="text-xs text-gray-500">{data.disclaimer}</p>
           <button className="rounded border px-4 py-2" onClick={saveLead}>Save Lead</button>
