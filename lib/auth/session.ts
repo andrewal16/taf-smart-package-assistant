@@ -40,9 +40,11 @@ export function verifySessionToken(token?: string | null): SessionUser | null {
   if (!body || !signature) return null;
   if (sign(body) !== signature) return null;
   try {
-    const parsed = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as SessionPayload;
-    if (parsed.exp < Date.now()) return null;
-    return { userId: parsed.userId, email: parsed.email, role: parsed.role, name: parsed.name };
+    const parsed = JSON.parse(Buffer.from(body, "base64url").toString("utf-8")) as Partial<SessionPayload>;
+    if (!parsed || typeof parsed !== "object") return null;
+    if (typeof parsed.exp !== "number" || parsed.exp < Date.now()) return null;
+    if (typeof parsed.userId !== "string" || typeof parsed.email !== "string" || typeof parsed.role !== "string" || typeof parsed.name !== "string") return null;
+    return { userId: parsed.userId, email: parsed.email, role: parsed.role as AppRole, name: parsed.name };
   } catch {
     return null;
   }
