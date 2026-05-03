@@ -6,11 +6,13 @@ function isPublic(path: string): boolean {
   return path === "/login" || path.startsWith("/api/auth/login") || path.startsWith("/api/auth/logout") || path.startsWith("/api/auth/me") || path.startsWith("/_next") || path.startsWith("/favicon") || path.includes(".");
 }
 
-export function middleware(req: NextRequest) {
+// ✅ Tambah async karena getSessionUserFromRequest sekarang async
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   if (isPublic(path)) return NextResponse.next();
 
-  const user = getSessionUserFromRequest(req);
+  // ✅ Tambah await
+  const user = await getSessionUserFromRequest(req);
   const isApi = path.startsWith("/api/");
 
   if (!user) {
