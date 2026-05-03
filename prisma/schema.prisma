@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole
+  dealerId  String?
+  branchId  String?
+  passwordHash String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  DEALER_SALESMAN
+  SALES_OFFICER
+  SALES_HEAD
+  PRODUCT_ADMIN
+  CREDIT_ADMIN
+  RISK_ADMIN
+  COMPLIANCE_ADMIN
+  IT_ADMIN
+}
+
+model Branch {
+  id       String  @id @default(cuid())
+  name     String
+  city     String
+  isActive Boolean @default(true)
+}
+
+model Dealer {
+  id       String  @id @default(cuid())
+  name     String
+  branchId String
+  isActive Boolean @default(true)
+}
+
+model VehicleModel {
+  id       String   @id @default(cuid())
+  brand    String
+  model    String
+  variant  String?
+  fuelType String? // ICE, Hybrid, EV
+  otr      Decimal
+  isActive Boolean  @default(true)
+}
+
+model Package {
+  id             String         @id @default(cuid())
+  code           String         @unique
+  name           String
+  productType    String // New Car, Used Car, Siap Dana
+  brand          String?
+  model          String?
+  branchId       String?
+  dealerId       String?
+  customerSegment String?
+  otrMin         Decimal?
+  otrMax         Decimal?
+  dpMinPct       Decimal
+  dpMaxPct       Decimal?
+  tenorMin       Int
+  tenorMax       Int
+  annualRatePct  Decimal
+  addmAllowed    Boolean        @default(true)
+  addbAllowed    Boolean        @default(true)
+  insuranceMode  String         @default("ON_LOAN")
+  adminFee       Decimal        @default(0)
+  tacpAllowed    Boolean        @default(false)
+  effectiveFrom  DateTime
+  effectiveTo    DateTime
+  status         PackageStatus  @default(DRAFT)
+  approvalStatus ApprovalStatus @default(DRAFT)
+  version        Int            @default(1)
+  createdById    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum PackageStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  ARCHIVED
+}
+
+enum ApprovalStatus {
+  DRAFT
+  SUBMITTED
+  CREDIT_APPROVED
+  RISK_APPROVED
+  COMPLIANCE_APPROVED
+  APPROVED
+  REJECTED
+}
+
+model Rule {
+  id              String               @id @default(cuid())
+  code            String               @unique
+  name            String
+  description     String
+  conditionJson   Json
+  actionJson      Json
+  priority        Int                  @default(100)
+  outputStatus    RecommendationStatus
+  reasonCode      String
+  dealerWording   String
+  internalWording String
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+enum RecommendationStatus {
+  GREEN
+  YELLOW
+  MANUAL_REVIEW
+  NOT_RECOMMENDED
+}
+
+model Lead {
+  id                 String                @id @default(cuid())
+  dealerId           String?
+  branchId           String?
+  createdById        String
+  customerAlias      String?
+  productType        String
+  desiredInstallment Decimal?
+  desiredTdp         Decimal?
+  selectedModel      String?
+  status             RecommendationStatus?
+  finalOutcome       String?
+  lostReason         String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+}
+
+model Recommendation {
+  id          String               @id @default(cuid())
+  leadId      String?
+  userId      String
+  inputJson   Json
+  outputJson  Json
+  status      RecommendationStatus
+  reasonCodes String[]
+  packageIds  String[]
+  createdAt   DateTime             @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  beforeJson Json?
+  afterJson  Json?
+  createdAt  DateTime @default(now())
+}
